@@ -1,0 +1,21 @@
+import App from '../src/app/App.vue'
+//import { router } from '../src/_helpers'
+//import { store } from '../src/_store';
+
+import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
+import VueRouter from 'vue-router';
+import Vuex from 'vuex';
+
+const localVue = createLocalVue()
+localVue.use(VueRouter)
+localVue.use(Vuex)
+
+describe('App', () => {
+  it('is a Vue instance', () => {
+    const wrapper = shallowMount(App, { 
+      localVue,
+      stubs: ['MyHeader'],
+    });
+    expect(wrapper.isVueInstance()).toBeTruthy()
+  })
+})

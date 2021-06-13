@@ -1,0 +1,84 @@
+// can't bother.
+
+
+
+
+
+
+
+import { shallowMount, createLocalVue, mount } from '@vue/test-utils'
+import VueRouter from 'vue-router'
+import VeeValidate from 'vee-validate';
+import Vuex from 'vuex';
+import {mapActions } from 'vuex'
+
+const regeneratorRuntime = require("regenerator-runtime");
+
+import { router } from '../src/_helpers/router'
+import { store as store_conf } from '../src/_store';
+import HomePage from '../src/views/HomePage.vue'
+import { configureFakeBackend } from '../src/_helpers';
+
+const localVue = createLocalVue()
+localVue.use(VueRouter)
+localVue.use(Vuex)
+localVue.use(VeeValidate)
+const store = new Vuex.Store(store_conf)
+
+describe('Register testing', () => {
+    configureFakeBackend();
+
+    let fake_shortcuts = [
+        {id:1, user:3, sk: 'my-fake-shorcuts.com/1', link:'https://www.google.com/'},
+        {id:2, user:3, sk: 'my-fake-shorcuts.com/2', link:'https://www.youtube.com/'}
+    ]
+    const fake_user = {
+        user:{
+            id: 3,
+            username: "test",
+            email: "test@email.com",
+            firstName: "test_first",
+            lastName: "test_last",
+            sex: "Male",
+            birthdate: "2021-05-04",
+            token: 'fake-jwt-token'
+        },
+        status:{ loggedIn: true }
+    }
+    const wrapper = shallowMount(HomePage, {
+        localVue, router,
+        global: {
+            plugins: [store]
+        },
+        data () {
+            return { sav: ''}
+        },
+        computed: { 
+            shortcuts(){
+                return {items: fake_shortcuts} 
+            },
+            account(){
+                return fake_user
+        }},
+        actions: {
+            copyLink(shortcut)
+            {
+                //console.log(event.target)
+                try {
+                    var succ = navigator.clipboard.writeText(shortcut.sk);
+                    //shortcut.copied = true;
+                } catch (err) {
+                    console.log('Oops, unable to copy');
+                }
+            }
+        }
+    })
+    it('Check proper v-for work ', async () => {
+    
+        expect(wrapper.findAll('.media').length).toBeEqual(2)
+        await wrapper.find('.media').find('a').trigger('click')
+        expect(wrapper.actions.copyLink).toHaveBeenCalled()
+        // expect(wrapper.findAll('invalid-feedback').length).toBeGreaterThanOrEqual(6)
+    
+    })
+})
